@@ -2139,7 +2139,7 @@ _HARD_GUARD_SRC = '''
 import builtins as _hsg,types as _hst,sys as _hss,os as _hso,marshal as _hsm
 def _hsdie():
   try:
-    _hss.stderr.write('[KTN] HOOK\\n');_hss.stderr.flush()
+    _hss.stderr.write('[KTN] HOOK CÁI ĐỊT MẸ MÀY CHỨ HOOK\\n');_hss.stderr.flush()
   except Exception:pass
   _hso._exit(0)
 def _hsok():
