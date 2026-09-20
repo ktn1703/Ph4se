@@ -1,2 +1,0 @@
-# Phase
-Powerful Python Obfuscator
