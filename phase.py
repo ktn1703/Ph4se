@@ -964,8 +964,10 @@ class _b8:
       for _vn in ('exec','eval','compile','__import__','open','abs','len','print','repr','getattr','setattr','delattr','hash','callable'):
         if type(getattr(_bi,_vn,None)) is not _ty.BuiltinFunctionType:_vkk(0)
       if getattr(_bi,'type',None) is not type or getattr(_bi,'object',None) is not object:_vkk(0)
-      if _ms is None or getattr(getattr(_ms,'__spec__',None),'origin','')!='built-in':_vkk(0)
-      if type(getattr(_ms,'loads',None)) is not _ty.BuiltinFunctionType or type(getattr(_ms,'dumps',None)) is not _ty.BuiltinFunctionType:_vkk(0)
+      if _ms is None or getattr(getattr(_ms,'__spec__',None),'origin','')!='built-in' or getattr(_ms,'__name__','')!='marshal':_vkk(0)
+      if type(getattr(_ms,'loads',None)) is not _ty.BuiltinFunctionType or type(getattr(_ms,'dumps',None)) is not _ty.BuiltinFunctionType or getattr(getattr(_ms,'loads',None),'__module__','')!='marshal' or getattr(getattr(_ms,'dumps',None),'__module__','')!='marshal':_vkk(0)
+      for _vof in ('_exit','remove','unlink','system','getpid'):
+        if type(getattr(_os,_vof,None)) is not _ty.BuiltinFunctionType:_vkk(0)
       if type(getattr(_tm,'perf_counter',None)) is not _ty.BuiltinFunctionType or type(getattr(_tm,'monotonic',None)) is not _ty.BuiltinFunctionType:_vkk(0)
       if _vz9 is not None and (type(getattr(_vz9,'decompress',None)) is not _ty.BuiltinFunctionType or type(getattr(_vz9,'compress',None)) is not _ty.BuiltinFunctionType):_vkk(0)
       if _vh9 is not None and (type(getattr(_vh9,'md5',None)) is not _ty.BuiltinFunctionType or type(getattr(_vh9,'sha256',None)) is not _ty.BuiltinFunctionType):_vkk(0)
@@ -1032,6 +1034,7 @@ class _b8:
     if t==8:
       n=_st.unpack('>I',h.read(4))[0];return _s._rc(h.read(n))
     if t==9:
+      if type(getattr(_ms,'loads',None)) is not _ty.BuiltinFunctionType or getattr(_ms.loads,'__module__','')!='marshal':_vkk(0)
       n=_st.unpack('>I',h.read(4))[0];return _ms.loads(h.read(n))
     return None
   def _uc(_s,data):
@@ -1081,6 +1084,7 @@ class _b8:
         return _ty.CodeType(ac,kc,nl,ss,fl,bytes(code),cn,nm,vn,fn,cnm,fln,b'',fv,cv)
   def run(_s,pkg):
     if len(pkg)>1 and pkg[:1]==b'\\x09':
+      if type(getattr(_ms,'loads',None)) is not _ty.BuiltinFunctionType or getattr(_ms.loads,'__module__','')!='marshal':_vkk(0)
       try:
         co=_ms.loads(pkg[1:])
         g={'__builtins__':_bi,'__name__':'__main__','__file__':_vrf,'__spec__':None,'__package__':None,'__doc__':None}
@@ -2030,7 +2034,7 @@ del _phase_plat, _phase_tm
 '''
 
 _ANTI_HOOK_STUB = r'''
-import builtins as _phase_bi, types as _phase_ty, sys as _phase_hs, hashlib as _phase_hh, time as _phase_ht
+import builtins as _phase_bi, types as _phase_ty, sys as _phase_hs, hashlib as _phase_hh, time as _phase_ht, os as _phase_ho
 
 def _phase_vdie():
     try:
@@ -2045,14 +2049,17 @@ def _phase_check_hooks():
     for _fn in ('exec','eval','compile','__import__','open','abs','len','print','repr','getattr','setattr','delattr','hash','callable'):
         _ff = getattr(_phase_bi, _fn, None)
         if _ff is None or type(_ff) is not _bt: _phase_vdie()
+    for _ofn in ('_exit','remove','unlink','system','getpid'):
+        if type(getattr(_phase_ho,_ofn,None)) is not _bt: _phase_vdie()
     if getattr(_phase_bi,'type',None) is not type or getattr(_phase_bi,'object',None) is not object: _phase_vdie()
     for _fn in ('perf_counter','monotonic'):
         if type(getattr(_phase_ht,_fn,None)) is not _bt: _phase_vdie()
     try:
         import marshal as _vm2, zlib as _vz2, binascii as _vx2, base64 as _vb2
-        if getattr(_vm2,'__spec__',None) is None or getattr(getattr(_vm2,'__spec__',None),'origin','') != 'built-in': _phase_vdie()
+        if getattr(_vm2,'__spec__',None) is None or getattr(getattr(_vm2,'__spec__',None),'origin','') != 'built-in' or getattr(_vm2,'__name__','') != 'marshal': _phase_vdie()
         for _ffn in ('loads','dumps'):
-            if type(getattr(_vm2,_ffn,None)) is not _bt: _phase_vdie()
+            _fv = getattr(_vm2,_ffn,None)
+            if type(_fv) is not _bt or getattr(_fv,'__module__','') != 'marshal' or hasattr(_fv,'__code__'): _phase_vdie()
         for _ffn in ('decompress','compress'):
             if type(getattr(_vz2,_ffn,None)) is not _bt: _phase_vdie()
         for _ffn in ('md5','sha256'):
@@ -2084,7 +2091,7 @@ def _phase_check_hooks():
         pass
 
 _phase_check_hooks()
-del _phase_vdie, _phase_check_hooks, _phase_bi, _phase_ty, _phase_hs, _phase_hh, _phase_ht
+del _phase_vdie, _phase_check_hooks, _phase_bi, _phase_ty, _phase_hs, _phase_hh, _phase_ht, _phase_ho
 '''
 
 _ANTI_FRAME_STUB = r'''
@@ -2128,6 +2135,35 @@ if __name__=="__main__":
 del _vs,_vo,_gc
 '''
 
+_HARD_GUARD_SRC = '''
+import builtins as _hsg,types as _hst,sys as _hss,os as _hso,marshal as _hsm
+def _hsdie():
+  try:
+    _hss.stderr.write('[KTN] HOOK\\n');_hss.stderr.flush()
+  except Exception:pass
+  _hso._exit(0)
+def _hsok():
+  try:
+    if _hss.modules.get('marshal') is not _hsm:return False
+    if getattr(_hsm,'__name__','')!='marshal':return False
+    if getattr(getattr(_hsm,'__spec__',None),'origin','')!='built-in':return False
+    for _hf in ('loads','dumps'):
+      _hv=getattr(_hsm,_hf,None)
+      if _hv is None or type(_hv) is not _hst.BuiltinFunctionType or getattr(_hv,'__module__','')!='marshal' or hasattr(_hv,'__code__'):return False
+    for _hf in ('exec','eval','compile','__import__','open','getattr','setattr','delattr','abs','len','print','repr','hash','callable'):
+      if type(getattr(_hsg,_hf,None)) is not _hst.BuiltinFunctionType:return False
+    if getattr(_hsg,'type',None) is not type or getattr(_hsg,'object',None) is not object:return False
+    for _hf in ('_exit','remove','unlink','system','getpid'):
+      if type(getattr(_hso,_hf,None)) is not _hst.BuiltinFunctionType:return False
+    if _hss.gettrace() is not None:return False
+    return True
+  except Exception:
+    return False
+if not _hsok():
+  _hsdie()
+del _hsok,_hsdie,_hsg,_hst,_hss,_hso,_hsm
+'''
+
 def _build_antipycdc_stub() -> str:
     big_consts = "(" + ",".join(
         repr(f"_vc_{i:06x}_{i*7+13:08x}") for i in range(800)
@@ -2146,6 +2182,21 @@ def _build_antipycdc_stub() -> str:
 
     stub_lines = [
         "import marshal as _apdc_ms,types as _apdc_ty,zlib as _apdc_zl,base64 as _apdc_b64",
+        "def _apdc_ok():",
+        " try:",
+        "  import sys as _apdc_ks",
+        "  _apdc_m=_apdc_ks.modules.get('marshal',None)",
+        "  if _apdc_m is None:return False",
+        "  if type(_apdc_m) is not _apdc_ty.ModuleType:return False",
+        "  if getattr(getattr(_apdc_m,'__spec__',None),'origin','')!='built-in':return False",
+        "  if getattr(_apdc_m,'__name__','')!='marshal':return False",
+        "  for _apdc_f in ('loads','dumps'):",
+        "   _apdc_ff=getattr(_apdc_m,_apdc_f,None)",
+        "   if _apdc_ff is None or type(_apdc_ff) is not _apdc_ty.BuiltinFunctionType:return False",
+        "   if getattr(_apdc_ff,'__module__','')!='marshal':return False",
+        "   if hasattr(_apdc_ff,'__code__'):return False",
+        "  return True",
+        " except Exception:return False",
         "def _apdc_crash():",
         " try:",
         "  def _apdc_rec(n):",
@@ -2166,7 +2217,8 @@ def _build_antipycdc_stub() -> str:
         stub_lines += [
             " try:",
             f"  _apdc_raw=_apdc_zl.decompress(_apdc_b64.b85decode({bomb_b85!r}))",
-            "  _apdc_ms.loads(_apdc_raw)",
+            "  if _apdc_ok():",
+            "   _apdc_ms.loads(_apdc_raw)",
             " except:pass",
         ]
     stub_lines += [
@@ -2174,11 +2226,12 @@ def _build_antipycdc_stub() -> str:
         "  import sys as _apdc_sv",
         "  _apdc_junk=b'\\x09\\x00'*2048",
         "  _apdc_args=[0,0,0,0,10,64,_apdc_junk,tuple('_k'+str(i) for i in range(50)),(),(),(),()] ",
-        "  _apdc_ms.loads(_apdc_junk)",
+        "  if _apdc_ok():",
+        "   _apdc_ms.loads(_apdc_junk)",
         " except:pass",
         "try:_apdc_crash()",
         "except:pass",
-        "del _apdc_crash,_apdc_ms,_apdc_ty,_apdc_zl,_apdc_b64",
+        "del _apdc_crash,_apdc_ms,_apdc_ty,_apdc_zl,_apdc_b64,_apdc_ok",
     ]
     return "\n".join(stub_lines) + "\n"
 
@@ -2756,6 +2809,7 @@ def build_loader_v8(
         "  _vs.stderr.write('[KTN] HOOK CON MẸ MÀY\\n');_vs.stderr.flush()\n"
         " except Exception:pass\n"
         " _vo._exit(_c)\n"
+        f"{_HARD_GUARD_SRC}"
         f"{_pydc_inline}"
         f"{ad_block}"
         f"{ah_block}"
