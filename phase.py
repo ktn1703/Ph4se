@@ -3012,8 +3012,8 @@ def obfuscate(
     )
 
     header_lines = [
-        '__OBF__ = "Ph4se - github.com/ktn1703/Ph4se"',
-        '__OWN__ = "Truong Nhat Bao Nam - ktn1703"',
+        '__OBF__ = "Ph4se"',
+        '__OWN__ = "sieu sao ktn"',
         f'__MODE__ = "{flags}"',
         f'__DATE__ = "{ts}"',
         '__CMT__ = "Don\'t Read This Code Because You Will Be Dizzy By My Magic!"',
